@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/09 21:32:54 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/10 01:14:51 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/10 02:32:17 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,5 +48,10 @@ void	free(void *ptr);
 void	*malloc(size_t size);
 void	*realloc(void *ptr, size_t size);
 void	show_alloc_mem();
+t_allocated	*get_first_allocated(t_block *block);
+void		*allocated_to_user(t_allocated* allocated);
+
+
+char*	ft_address_to_hexa(void* address);
 
 #endif

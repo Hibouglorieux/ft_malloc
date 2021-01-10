@@ -1,7 +1,7 @@
 
 NAME = libft_malloc
 
-FILES = ft_malloc.c
+FILES = ft_malloc.c ft_number_to_hexa.c
 
 OBJ = $(addprefix obj/, $(FILES:.c=.o))
 

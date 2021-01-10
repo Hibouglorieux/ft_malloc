@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/09 21:32:40 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/10 01:53:27 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/10 03:03:19 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,41 @@ void *mmap(void *addr, size_t length, int prot, int flags,
 int munmap(void *addr, size_t length);
 */
 
-static t_mallocs g_mallocs = {0};
+static t_mallocs g_mallocs = {NULL, NULL, NULL};
+
+void	print_block(t_block *block, char *name)
+{
+	ft_putstr(name);
+	ft_putendl(ft_address_to_hexa((void*)block));
+}
+
+void	print_alloc(t_allocated *alloc)
+{
+	ft_putstr(ft_address_to_hexa((void*)allocated_to_user(alloc)));
+	ft_putstr(" - ");
+	ft_putstr(ft_address_to_hexa(allocated_to_user((void*)alloc + alloc->size_queried)));
+	ft_putstr(" : ");
+	ft_putnbr(alloc->size_queried);
+	ft_putendl(alloc->size_queried == 1 ? " octet" : " octets");
+}
+
+void	show_alloc_mem()
+{
+	t_allocated *alloc;
+
+	print_block(g_mallocs.tiny, "TINY: ");
+	if (g_mallocs.tiny)
+	{
+		alloc = get_first_allocated(g_mallocs.tiny);
+		while (alloc)
+		{
+			print_alloc(alloc);
+			alloc = alloc->next;
+		}
+	}
+	print_block(g_mallocs.small, "SMALL: ");
+	print_block(g_mallocs.large, "LARGE: ");
+}
 
 void print_address(void *ptr, char* str)
 {
@@ -106,7 +140,6 @@ void	add_block(t_block *block)
 		list_target = &g_mallocs.large;
 	if (*list_target == NULL)
 	{
-		ft_putstr("added block\n");
 		*list_target = block;
 	}
 	else
@@ -142,7 +175,7 @@ t_allocated		*get_last_allocated(t_block *block)//TODO super unsafe
 	t_allocated		*tmp;
 
 	tmp = get_first_allocated(block);
-	if (tmp)
+	if (!tmp)
 		return (NULL);
 	while (tmp->next != NULL)
 		tmp = tmp->next;
@@ -173,7 +206,7 @@ void		create_new_alloc(t_allocated *new_alloc, size_t size_queried,
 	new_alloc->block = find_block_containing_alloc(new_alloc);
 	new_alloc->block->size_used += size_queried + sizeof(t_allocated);
 	new_alloc->next = NULL;
-	if (is_first)
+	if (!is_first)
 	{
 		last_alloc = get_last_allocated(new_alloc->block);
 		if (last_alloc != NULL)
@@ -238,7 +271,13 @@ void	*malloc(size_t size)
 	if (allocated)
 		create_new_alloc(allocated, size, block == NULL ? false : true);
 	else
-		return NULL;
+	{
+		block = create_new_block(block_size);
+		if (!block)
+			return NULL;
+		allocated = get_first_allocated(block);
+		create_new_alloc(allocated, size, true);
+	}
 	return allocated_to_user(allocated);
 }
 
