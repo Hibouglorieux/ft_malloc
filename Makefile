@@ -7,7 +7,7 @@ OBJ = $(addprefix obj/, $(FILES:.c=.o))
 
 INCLUDES = includes/ft_malloc.h
 
-LIBS = libft/libft.a
+LIBS = -Llibft -lft
 
 ifeq ($(HOSTTYPE),)
 	HOSTTYPE := $(shell uname -m)_$(shell uname -s)
@@ -23,15 +23,15 @@ all: $(NAME)
 
 $(NAME): $(OBJ)
 	@make -C libft
-	ar rs $(FULL_LIBRARY) $(OBJ)
-	ln -s $(FULL_LIBRARY) $(SHORT_LIBRARY)
+	$(CC) -shared -o $(FULL_LIBRARY) $(OBJ) $(LIBS)
+	ln -f -s $(FULL_LIBRARY) $(SHORT_LIBRARY)
 
 test: $(OBJ) obj/main.o
 	@make -C libft
 	$(CC) $^ -o malloc $(LIBS)
 	
 obj/%.o:src/%.c $(INCLUDES)
-	$(CC) -g -Wall -Wextra -c $< -o $@ -Iincludes -Ilibft
+	$(CC) -g -Wall -Wextra -fPIC -c $< -o $@ -Iincludes -Ilibft
 
 clean:
 	@make clean -C libft
@@ -39,4 +39,6 @@ clean:
 
 fclean: clean
 	@make fclean -C libft
-	rm -rf $(NAME)
+	rm -rf $(FULL_LIBRARY) $(SHORT_LIBRARY)
+
+re: fclean all

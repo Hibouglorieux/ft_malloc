@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/09 21:32:40 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/10 15:55:12 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/10 18:59:29 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,7 +221,17 @@ t_allocated		*create_new_alloc(t_allocated *new_alloc, size_t size_queried, t_al
 
 	new_alloc->block = find_block_containing_alloc(new_alloc);
 	if (size_queried != 0)
+	{
+		ft_putstr("old block size: ");
+		ft_putnbr(new_alloc->block->size_used);
+		ft_putchar('\n');
+
 		new_alloc->block->size_used += size_queried + sizeof(t_allocated);
+
+		ft_putstr("new block size: ");
+		ft_putnbr(new_alloc->block->size_used);
+		ft_putchar('\n');
+	}
 	new_alloc->next = next;
 	if (previous)
 		previous->next = new_alloc;
@@ -302,6 +312,9 @@ void	*malloc(size_t size)
 
 	block = NULL;
 	block_size = return_block_size(size);
+	ft_putstr("i must malloc: ");
+	ft_putnbr(size);
+	ft_putendl("");
 	if (get_first_block(block_size) == NULL)
 	{
 		if (!(block = create_new_block(block_size)))
@@ -319,6 +332,11 @@ void	*malloc(size_t size)
 			allocated = create_new_alloc(get_first_allocated(block), size, NULL, NULL);
 		}
 	}
+	ft_putstr("I allocated: ");
+	ft_putstr(ft_address_to_hexa(allocated_to_user(allocated)));
+	ft_putstr(" with size: ");
+	ft_putnbr(size);
+	ft_putendl("");
 	return allocated_to_user(allocated);
 }
 
@@ -345,15 +363,32 @@ void	free(void *ptr)
 	t_block		*block;
 	t_allocated	*allocated;
 
+	if (!ptr)
+		return;
 	allocated = user_to_allocated(ptr);
 	block = allocated->block;
+
+	ft_putstr("i must free :");
+	ft_putstr(ft_address_to_hexa(ptr));
+	ft_putendl("");
+
+	ft_putstr("which has a size of : ");
+	ft_putnbr(allocated->size_queried);
+	ft_putendl("");
+
+	ft_putstr("block size before: ");
+	ft_putnbr(block->size_used);
+	ft_putendl("");
+
 	block->size_used = block->size_used - allocated->size_queried - sizeof(t_allocated);
+
+	ft_putstr("block size after: ");
+	ft_putnbr(block->size_used);
+	ft_putendl("");
+
 	remove_alloc(allocated, block);
 	if (allocated == get_first_allocated(block))// case in which i need 1rst elem in any case
 		create_new_alloc(get_first_allocated(block), 0, NULL, allocated->next);
-	ft_putstr("block size used: ");
-	ft_putnbr(block->size_used);
-	ft_putendl("");
 	if (block->size_used <= sizeof(t_block))
 	{
 		ft_putendl("removing block");
@@ -362,8 +397,47 @@ void	free(void *ptr)
 	}
 }
 
+void	*change_block(t_allocated *alloc, size_t size)
+{
+	void		*user_ptr;
+
+	user_ptr = malloc(size);
+	ft_strncpy(user_ptr, allocated_to_user(alloc), ft_min(size, alloc->size_queried));
+	free(allocated_to_user(alloc));
+	return (user_ptr);
+}
+
 void	*realloc(void *ptr, size_t size)
 {
-	//ptr = mmap(ptr, size, PROT_NONE, MAP_FIXED)// MAP_FIXED first try
-	return ptr;
+	t_allocated	*alloc;
+
+	if (ptr == NULL)
+		return malloc(size);
+	ft_putstr("I must realloc: ");
+	ft_putstr(ft_address_to_hexa(ptr));
+	ft_putstr(" with size: ");
+	ft_putnbr(size);
+	ft_putendl("");
+	alloc = user_to_allocated(ptr);
+	if (size == 0)
+		free(ptr);
+	else if (return_block_size(size) != return_block_size(alloc->size_queried))
+		return (change_block(alloc, size));
+	else if (size < alloc->size_queried)
+	{
+		alloc->block->size_used = alloc->block->size_used + size - alloc->size_queried;
+		alloc->size_queried = size;
+	}
+	else
+	{
+		if (alloc->block->size_used + size - alloc->size_queried < alloc->block->size_allocated &&
+				(alloc->next == NULL || (void*)alloc + size + sizeof(t_allocated) < (void*)alloc->next))
+		{
+			alloc->block->size_used = alloc->block->size_used + size - alloc->size_queried;
+			alloc->size_queried = size;
+		}
+		else
+			return (change_block(alloc, size));
+	}
+	return (ptr);
 }
