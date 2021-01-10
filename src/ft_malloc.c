@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/09 21:32:40 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/10 03:03:19 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/10 04:05:37 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,19 +46,34 @@ void	print_alloc(t_allocated *alloc)
 void	show_alloc_mem()
 {
 	t_allocated *alloc;
+	t_block		*block;
+	size_t		count;
+	char		name[10];
+	int			i;
 
-	print_block(g_mallocs.tiny, "TINY: ");
-	if (g_mallocs.tiny)
+	count = 0;
+	i = -1;
+	while (++i < 3)
 	{
-		alloc = get_first_allocated(g_mallocs.tiny);
-		while (alloc)
+		block = i == 0 ? g_mallocs.tiny : i == 1 ? g_mallocs.small :
+			g_mallocs.large;
+		ft_strcpy(name, i == 0 ? "TINY: " : i == 1 ? "SMALL: " : "LARGE: " );
+		while (block != NULL)
 		{
-			print_alloc(alloc);
-			alloc = alloc->next;
+			print_block(block, name);
+			if (block && (alloc = get_first_allocated(block)))
+				while (alloc)
+				{
+					print_alloc(alloc);
+					count += alloc->size_queried;
+					alloc = alloc->next;
+				}
+			block = block->next;
 		}
 	}
-	print_block(g_mallocs.small, "SMALL: ");
-	print_block(g_mallocs.large, "LARGE: ");
+	ft_putstr("Total : ");
+	ft_putnbr(count);
+	ft_putendl(count == 1 ? " octet" : " octets");
 }
 
 void print_address(void *ptr, char* str)
@@ -174,6 +189,8 @@ t_allocated		*get_last_allocated(t_block *block)//TODO super unsafe
 {
 	t_allocated		*tmp;
 
+	if (!block)
+		return (NULL);
 	tmp = get_first_allocated(block);
 	if (!tmp)
 		return (NULL);
@@ -214,7 +231,34 @@ void		create_new_alloc(t_allocated *new_alloc, size_t size_queried,
 	}
 }
 
-t_allocated	*find_space_in_block(size_t size_queried)
+t_allocated	*find_space_inside_block(size_t size_queried, t_block *block)
+{
+	t_allocated		*allocated;
+	size_t			updated_size;
+
+	allocated = get_first_allocated(block);
+	updated_size = size_queried + sizeof(t_allocated);
+	while (allocated)
+	{
+		if (allocated->size_queried == 0)//TODO case where first is needed anyway
+			break;
+		if ((void*)allocated + allocated->size_queried + updated_size <
+				(void*)allocated->next)
+		{
+			allocated = (t_allocated*)(void*)allocated +
+				allocated->size_queried;//TODO insert alloc between
+			break;
+		}
+		allocated = allocated->next;
+		if (allocated->next == NULL && ((void*)allocated +
+					allocated->size_queried + sizeof(t_allocated) <
+					(void*)block + block->size_allocated - updated_size))
+			break;
+	}
+	return (allocated);
+}
+
+t_allocated	*find_space_in_blocks(size_t size_queried)
 {
 	t_allocated		*allocated;
 	t_block			*block;
@@ -230,7 +274,9 @@ t_allocated	*find_space_in_block(size_t size_queried)
 			continue;
 		}
 		allocated = get_first_allocated(block);
-		while (allocated->next != NULL)
+		while (allocated->next != NULL)//TODO probleme implementation si maillon entre manquant
+			//solution => chercher en faisant des soustractions entre alloc et alloc->next
+			//si place inserer le maillon entre
 			allocated = allocated->next;
 		if ((void*)allocated + allocated->size_queried + sizeof(t_allocated) <
 				(void*)block + block->size_allocated - updated_size)
@@ -263,13 +309,13 @@ void	*malloc(size_t size)
 	block = NULL;
 	block_size = return_block_size(size);
 	if (get_first_block(block_size) == NULL || (allocated =
-				find_space_in_block(size)) == NULL)
+				find_space_in_blocks(size)) == NULL)
 	{
 		block = create_new_block(block_size);
 		allocated = get_first_allocated(block);
 	}
 	if (allocated)
-		create_new_alloc(allocated, size, block == NULL ? false : true);
+		create_new_alloc(allocated, size, block == NULL ? false : true);// TODO rework that
 	else
 	{
 		block = create_new_block(block_size);
@@ -283,36 +329,42 @@ void	*malloc(size_t size)
 
 void	free(void *ptr)
 {
-	t_block		*common_block;
+	t_block		*block;
 	t_allocated	*allocated;
 	t_allocated	*tmp;
 	t_block		*block_tmp;
 
 	allocated = user_to_allocated(ptr);
-	common_block = allocated->block;
-
-	common_block->size_used -= allocated->size_queried - sizeof(t_allocated);
+	block = allocated->block;
+	block->size_used -= allocated->size_queried - sizeof(t_allocated);
+	if (allocated == get_first_allocated(block) && allocated->next == NULL)
+	{
+		remove_block(block);
+		munmap(block, block->size_allocated);
+	}
 	if (allocated->next != NULL)
 	{
-		tmp = get_first_allocated(common_block);
+		tmp = get_first_allocated(block);//TODO faiblesse si j'enleve le premier maillon
 		if (tmp != allocated)
 			while (tmp->next != allocated)
 				tmp = tmp->next;
 		tmp->next = allocated->next;
 	}
 	allocated->size_queried = 0;
-	if (common_block->size_used <= sizeof(t_block))
+	allocated->block = NULL;
+	allocated->next = NULL;
+	if (block->size_used <= sizeof(t_block))
 	{
-		block_tmp = get_first_block(common_block->size_allocated);
-		if (block_tmp != common_block)
+		block_tmp = get_first_block(block->size_allocated);
+		if (block_tmp != block)
 		{
-			while (block_tmp->next != common_block)
+			while (block_tmp->next != block)
 				block_tmp = block_tmp->next;
-			block_tmp->next = common_block->next;
+			block_tmp->next = block->next;
 		}
 		else
-			remove_block(common_block->next);//TODO check if first block is deleted
-		munmap(common_block, common_block->size_allocated);
+			remove_block(block);
+		munmap(block, block->size_allocated);
 	}
 }
 
