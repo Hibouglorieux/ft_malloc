@@ -6,18 +6,14 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/09 21:32:40 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/10 18:59:29 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/10 19:52:26 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 #include "libft.h"
-#include <unistd.h>
 #include <sys/mman.h>
 #include <stdio.h>
-
-#define MALLOC_HEADER_SIZE 4
-#define MALLOC_HEADER_
 
 /*
 void *mmap(void *addr, size_t length, int prot, int flags,
@@ -25,75 +21,15 @@ void *mmap(void *addr, size_t length, int prot, int flags,
 int munmap(void *addr, size_t length);
 */
 
-static t_mallocs g_mallocs = {NULL, NULL, NULL};
-
-void	print_block(t_block *block, char *name)
-{
-	ft_putstr(name);
-	ft_putendl(ft_address_to_hexa((void*)block));
-}
-
-void	print_alloc(t_allocated *alloc)
-{
-	ft_putstr(ft_address_to_hexa((void*)allocated_to_user(alloc)));
-	ft_putstr(" - ");
-	ft_putstr(ft_address_to_hexa(allocated_to_user((void*)alloc + alloc->size_queried)));
-	ft_putstr(" : ");
-	ft_putnbr(alloc->size_queried);
-	ft_putendl(alloc->size_queried == 1 ? " octet" : " octets");
-}
-
-void	show_alloc_mem()
-{
-	t_allocated *alloc;
-	t_block		*block;
-	size_t		count;
-	char		name[10];
-	int			i;
-
-	count = 0;
-	i = -1;
-	while (++i < 3)
-	{
-		block = i == 0 ? g_mallocs.tiny : i == 1 ? g_mallocs.small :
-			g_mallocs.large;
-		ft_strcpy(name, i == 0 ? "TINY: " : i == 1 ? "SMALL: " : "LARGE: " );
-		while (block != NULL)
-		{
-			print_block(block, name);
-			if (block && (alloc = get_first_allocated(block)))
-				while (alloc)
-				{
-					print_alloc(alloc);
-					count += alloc->size_queried;
-					alloc = alloc->next;
-				}
-			block = block->next;
-		}
-	}
-	ft_putstr("Total : ");
-	ft_putnbr(count);
-	ft_putendl(count == 1 ? " octet" : " octets");
-}
-
-void print_address(void *ptr, char* str)
-{
-	ft_putstr(str);
-	ft_putchar(':');
-	ft_putchar(' ');
-	ft_putnbr((size_t)ptr);
-	ft_putchar('\n');
-}
-
 size_t	return_block_size(size_t size)
 {
 	size_t page_size;
 
 	page_size = getpagesize();
 	if (size < page_size)
-		return (page_size * 120);
+		return (page_size * 4);
 	if (size < page_size * 10)
-		return (page_size * 1200);
+		return (page_size * 16);
 	else
 		return (size/* + X*/);
 }
@@ -103,34 +39,29 @@ t_block	*get_first_block(size_t size)
 	size_t page_size;
 
 	page_size = getpagesize();
-	if (size == page_size * 120)
-		return (g_mallocs.tiny);
-	if (size == page_size * 1200)
-		return (g_mallocs.small);
+	if (size == page_size * 4)
+		return (get_g_mallocs()->tiny);
+	if (size == page_size * 16)
+		return (get_g_mallocs()->small);
 	else
-		return (g_mallocs.large);
+		return (get_g_mallocs()->large);
 }
 
 void	remove_block(t_block *block)
 {
-	size_t		page_size;
-	t_block		**list_target;
 	t_block		*target;
-	size_t		size;
+	t_mallocs	*mallocs;
 
-	size = block->size_allocated;
-	page_size = getpagesize();
-	if (size == page_size * 120)
-		list_target = &g_mallocs.tiny;
-	else if (size == page_size * 1200)
-		list_target = &g_mallocs.small;
-	else
-		list_target = &g_mallocs.large;
-	if (*list_target == block)
-		*list_target = block->next;
+	mallocs = get_g_mallocs();
+	if (mallocs->tiny == block)
+		mallocs->tiny = block->next;
+	else if (mallocs->small == block)
+		mallocs->small = block->next;
+	else if (mallocs->large == block)
+		mallocs->large = block->next;
 	else
 	{
-		target = *list_target;
+		target = get_first_block(block->size_allocated);
 		while (target->next != block)
 			target = target->next;
 		target->next = block->next;
@@ -147,12 +78,12 @@ void	add_block(t_block *block)
 	size = block->size_allocated;
 
 	page_size = getpagesize();
-	if (size == page_size * 120)
-		list_target = &g_mallocs.tiny;
-	else if (size == page_size * 1200)
-		list_target = &g_mallocs.small;
+	if (size == page_size * 4)
+		list_target = &get_g_mallocs()->tiny;
+	else if (size == page_size * 16)
+		list_target = &get_g_mallocs()->small;
 	else
-		list_target = &g_mallocs.large;
+		list_target = &get_g_mallocs()->large;
 	if (*list_target == NULL)
 	{
 		*list_target = block;
@@ -211,7 +142,7 @@ t_block		*find_block_containing_alloc(t_allocated *alloc)
 			return block;
 		block = block->next;
 	}
-	return NULL;
+	return (NULL);
 }
 
 t_allocated		*create_new_alloc(t_allocated *new_alloc, size_t size_queried, t_allocated *previous,
@@ -249,6 +180,7 @@ t_allocated	*find_space_inside_block(t_block *block, size_t size_queried)
 	{
 		if (allocated->size_queried == 0 && (void*)allocated->next - (void*)allocated > updated_size)
 		{
+			ft_putendl("1");
 			create_new_alloc(allocated, size_queried, NULL, allocated->next);
 			break;
 		}
@@ -256,6 +188,16 @@ t_allocated	*find_space_inside_block(t_block *block, size_t size_queried)
 					allocated->size_queried + sizeof(t_allocated) + updated_size <
 					(void*)block + block->size_allocated))
 		{
+			ft_putstr("block address: ");
+			ft_putstr(ft_address_to_hexa(block));
+			ft_putendl("");
+			ft_putstr("current alloc address: ");
+			ft_putstr(ft_address_to_hexa(allocated));
+			ft_putendl("");
+			ft_putstr("block_size: ");
+			ft_putnbr(block->size_allocated);
+			ft_putendl("");
+
 			allocated = create_new_alloc((void*)allocated + sizeof(t_allocated) + allocated->size_queried,
 					size_queried, allocated, NULL);
 			break;
@@ -263,6 +205,7 @@ t_allocated	*find_space_inside_block(t_block *block, size_t size_queried)
 		else if ((void*)allocated + allocated->size_queried + updated_size +
 			sizeof(t_allocated) < (void*)allocated->next)
 		{
+			ft_putendl("3");
 			allocated = create_new_alloc((void*)allocated + allocated->size_queried + sizeof(t_allocated), size_queried, allocated, allocated->next);
 			break;
 		}
@@ -277,6 +220,7 @@ t_allocated	*find_space_in_blocks(size_t size_queried)
 	t_block			*block;
 	size_t			updated_size;
 
+	allocated = NULL;
 	updated_size = size_queried + sizeof(t_allocated);
 	block = get_first_block(return_block_size(size_queried));
 	while (block)
@@ -310,6 +254,8 @@ void	*malloc(size_t size)
 	t_block			*block;
 	t_allocated		*allocated;
 
+	if (size == 0)
+		return (NULL);
 	block = NULL;
 	block_size = return_block_size(size);
 	ft_putstr("i must malloc: ");
@@ -320,10 +266,12 @@ void	*malloc(size_t size)
 		if (!(block = create_new_block(block_size)))
 			return (NULL);
 		allocated = create_new_alloc(get_first_allocated(block), size, NULL, NULL);
+		ft_putendl("created first block and first alloc");
 	}
 	else
 	{
 		allocated = find_space_in_blocks(size);
+		ft_putendl("found space in current blocks");
 		if (!allocated)
 		{
 			ft_putendl("didnt find space in existing block, creating new allocated");
@@ -336,7 +284,10 @@ void	*malloc(size_t size)
 	ft_putstr(ft_address_to_hexa(allocated_to_user(allocated)));
 	ft_putstr(" with size: ");
 	ft_putnbr(size);
+	ft_putstr(" with parent block ID : ");
+	ft_putstr(ft_address_to_hexa(allocated->block));
 	ft_putendl("");
+
 	return allocated_to_user(allocated);
 }
 

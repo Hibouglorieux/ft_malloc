@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/09 21:32:54 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/10 18:59:28 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/10 19:20:55 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,11 +43,19 @@ typedef struct		s_allocated
 	struct s_allocated		*next;
 }					t_allocated;
 
+/*
+** ft_malloc_print.c
+*/
+void	show_alloc_mem();
+
+/*
+** ft_malloc_variable.c
+*/
+t_mallocs	*get_g_mallocs();
 
 void	free(void *ptr);
 void	*malloc(size_t size);
 void	*realloc(void *ptr, size_t size);
-void	show_alloc_mem();
 t_allocated	*get_first_allocated(t_block *block);
 void		*allocated_to_user(t_allocated* allocated);
 
