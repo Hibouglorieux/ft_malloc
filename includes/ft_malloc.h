@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/09 21:32:54 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/10 19:20:55 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/11 10:11:33 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define __FT_MALLOC__
 
 #include <stdlib.h>
+#include "libft.h"
 
 #define TYNY 1
 #define SMALL 4
@@ -53,9 +54,61 @@ void	show_alloc_mem();
 */
 t_mallocs	*get_g_mallocs();
 
+/*
+** ft_malloc_multithread.c
+*/
+int		secure_malloc(void);
+int		release_secure_malloc(void);
+void	*return_and_release(void *ptr);
+
+/*
+** ft_free.c
+*/
+void	remove_alloc(t_allocated *removed, t_block *block);
+void	remove_block(t_block *block);
+bool	does_pointer_exists(void *ptr);
 void	free(void *ptr);
-void	*malloc(size_t size);
+
+/*
+** ft_realloc.c
+*/
 void	*realloc(void *ptr, size_t size);
+
+/*
+** ft_malloc_addr.c
+*/
+t_block	*get_first_block(size_t size);
+t_allocated	*get_first_allocated(t_block* block);
+t_allocated	*user_to_allocated(void *ptr);
+void	*allocated_to_user(t_allocated *allocated);
+t_allocated		*get_last_allocated(t_block *block);
+
+/*
+** ft_malloc_block.c
+*/
+size_t	return_block_size(size_t size);
+void	add_block(t_block *block);
+t_block	*create_new_block(size_t block_size);
+t_block		*find_block_containing_alloc(t_allocated *alloc);
+
+/*
+** ft_malloc_alloc.c
+*/
+
+t_allocated		*create_new_alloc(t_allocated *new_alloc, size_t size_queried, t_allocated *previous, t_allocated *next);
+t_allocated		*find_space_inside_block(t_block *block, size_t size_queried);
+t_allocated	*find_space_in_blocks(size_t size_queried);
+
+/*
+** ft_malloc.c
+*/
+t_allocated		*create_new_alloc(t_allocated *new_alloc, size_t size_queried, t_allocated *previous, t_allocated *next);
+
+
+
+
+void	*malloc(size_t size);
+void	*calloc(size_t nmemb, size_t size);
 t_allocated	*get_first_allocated(t_block *block);
 void		*allocated_to_user(t_allocated* allocated);
 

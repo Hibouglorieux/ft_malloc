@@ -1,7 +1,8 @@
 
 NAME = libft_malloc
 
-FILES = ft_malloc.c ft_number_to_hexa.c ft_malloc_print.c ft_malloc_variable.c
+FILES = ft_malloc.c ft_number_to_hexa.c ft_malloc_print.c ft_malloc_variable.c ft_malloc_multithread.c \
+		ft_realloc.c ft_free.c ft_malloc_block.c ft_malloc_addr.c ft_malloc_alloc.c
 
 OBJ = $(addprefix obj/, $(FILES:.c=.o))
 
