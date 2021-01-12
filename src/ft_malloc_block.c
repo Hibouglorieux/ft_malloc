@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:46:10 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/12 06:26:40 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/12 07:50:45 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,12 +25,25 @@ size_t		return_block_size(size_t size)
 	if (size <= MAX_SMALL)
 	{
 		x = ((size <= MAX_TINY ? MAX_TINY : MAX_SMALL) + sizeof(t_allocated)) * 100 + sizeof(t_block);
-		x = x / page_size + ((size % page_size) ? 1  : 0);
+		x = x / page_size + ((x % page_size) ? 1 : 0);
 	}
 	else
 	{
 		x = size + sizeof(t_block) + sizeof(t_allocated);
-		x = x / page_size + ((size % page_size) ? 1 : 0);
+		//ft_putstr("return block, x equal: ");
+		//ft_putnbr(x);
+		//ft_putstr(" && page_size equal: ");
+		//ft_putnbr(page_size);
+		//ft_putstr(" && x / page: ");
+		//ft_putnbr(x / page_size);
+		//ft_putstr(" && size \% page: ");
+		//ft_putnbr((size % page_size));
+		//ft_putstr(" && size \% page ternary: ");
+		//ft_putnbr(((size % page_size) ? 1 : 0));
+		x = x / page_size + ((x % page_size) ? 1 : 0);
+		//ft_putstr(" && final x: ");
+		//ft_putnbr(x);
+		//ft_putendl("");
 	}
 	return (page_size * x);
 }

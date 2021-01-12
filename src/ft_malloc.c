@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/09 21:32:40 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/12 06:18:09 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/12 09:20:03 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void	*malloc(size_t size)
 		return (NULL);
 	if (secure_malloc())
 	{
-		ft_putendl("mutex didnt work");
+		//ft_putendl("mutex didnt work");
 		return (return_and_release(NULL));
 	}
 	size = align_size_for_address(size);
@@ -43,12 +43,6 @@ void	*malloc(size_t size)
 
 
 	block_size = return_block_size(size);
-
-	ft_putstr("with size: ");
-	ft_putnbr(size);
-	ft_putstr(" i return: ");
-	ft_putnbr(block_size);
-	ft_putendl("");
 
 	//ft_putstr("i must malloc: ");
 	//ft_putnbr(size);
@@ -77,13 +71,18 @@ void	*malloc(size_t size)
 			}
 			allocated = create_new_alloc(get_first_allocated(block), size, NULL, NULL);
 		}
+		block = find_block_containing_alloc(allocated);
 	}
 	//ft_putstr("I allocated: ");
 	//ft_putstr(ft_address_to_hexa(allocated_to_user(allocated)));
 	//ft_putstr(" with size: ");
 	//ft_putnbr(size);
 	//ft_putstr(" with parent block ID : ");
-	//ft_putstr(ft_address_to_hexa(allocated->block));
+	//ft_putstr(ft_address_to_hexa(block));
+	//ft_putstr(" which has allocated: ");
+	//ft_putnbr(block->size_allocated);
+	//ft_putstr(" and has size_used: ");
+	//ft_putnbr(block->size_used);
 	//ft_putendl("");
 
 	return (return_and_release(allocated_to_user(allocated)));

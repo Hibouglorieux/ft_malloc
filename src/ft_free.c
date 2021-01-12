@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:27:46 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/11 10:38:34 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/12 08:01:36 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,6 @@ void	remove_alloc(t_allocated *removed, t_block *block)
 			tmp = tmp->next;
 		tmp->next = removed->next;
 		removed->size_queried = 0;
-		removed->block = NULL;
 		removed->next = NULL;
 	}
 }
@@ -117,11 +116,11 @@ void	free(void *ptr)
 		return;
 	if (secure_malloc())
 	{
-		ft_putendl("MALLOC DIDNT LOCK");
+		//ft_putendl("MALLOC DIDNT LOCK");
 		return;
 	}
 	allocated = user_to_allocated(ptr);
-	block = allocated->block;
+	block = find_block_containing_alloc(allocated);
 
 	//ft_putstr("i must free :");
 	//ft_putstr(ft_address_to_hexa(ptr));

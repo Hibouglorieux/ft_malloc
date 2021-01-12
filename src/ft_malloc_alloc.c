@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:49:40 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/11 09:50:01 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/12 07:50:38 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,18 @@
 t_allocated		*create_new_alloc(t_allocated *new_alloc, size_t size_queried, t_allocated *previous,
 		t_allocated *next)
 {
+	t_block *block;
+
 	new_alloc->size_queried = size_queried;
 
-	new_alloc->block = find_block_containing_alloc(new_alloc);
+	block = find_block_containing_alloc(new_alloc);
 	if (size_queried != 0)
 	{
 		//ft_putstr("old block size: ");
 		//ft_putnbr(new_alloc->block->size_used);
 		//ft_putchar('\n');
 
-		new_alloc->block->size_used += size_queried + sizeof(t_allocated);
+		block->size_used += size_queried + sizeof(t_allocated);
 
 		//ft_putstr("new block size: ");
 		//ft_putnbr(new_alloc->block->size_used);

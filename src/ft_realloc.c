@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:26:49 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/12 05:08:24 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/12 08:07:08 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void	unprotected_free(void *ptr)
 	if (!does_pointer_exists(ptr))
 		return;
 	allocated = user_to_allocated(ptr);
-	block = allocated->block;
+	block = find_block_containing_alloc(allocated);
 
 	//ft_putstr("i must free :");
 	//ft_putstr(ft_address_to_hexa(ptr));
@@ -94,7 +94,7 @@ void	*unprotected_malloc(size_t size)
 	//ft_putstr(" with size: ");
 	//ft_putnbr(size);
 	//ft_putstr(" with parent block ID : ");
-	//ft_putstr(ft_address_to_hexa(allocated->block));
+	//ft_putstr(ft_address_to_hexa(find_block_containing_alloc(allocated)));
 	//ft_putendl("");
 
 	return ((allocated_to_user(allocated)));
@@ -114,10 +114,11 @@ void	*change_ptr(t_allocated *alloc, size_t size)
 void	*realloc(void *ptr, size_t size)
 {
 	t_allocated	*alloc;
+	t_block		*block;
 
 	/*if (secure_malloc())
 	{
-		ft_putendl("secured FAILED");
+		//ft_putendl("secured FAILED");
 		return NULL;
 	}
 	*/
@@ -137,6 +138,7 @@ void	*realloc(void *ptr, size_t size)
 	//ft_putnbr(alloc->size_queried);
 	//ft_putendl("");
 	secure_malloc();
+	block = find_block_containing_alloc(alloc);
 	if (size == 0)
 		unprotected_free(ptr);
 	else if (return_block_size(size) != return_block_size(alloc->size_queried))
@@ -147,15 +149,14 @@ void	*realloc(void *ptr, size_t size)
 	else if (size < alloc->size_queried)
 	{
 		//ft_putendl("smaller alloc");
-		alloc->block->size_used = alloc->block->size_used + size - alloc->size_queried;
+		block->size_used = block->size_used + size - alloc->size_queried;
 		alloc->size_queried = size;
 	}
 	else
 	{
 		void	*end_address = (void*)alloc + size + sizeof(t_allocated);
-		//if (alloc->block->size_used + size - alloc->size_queried < alloc->block->size_allocated &&
-		if ((alloc->next == NULL && end_address < (void*)alloc->block +
-					alloc->block->size_allocated) ||
+		if ((alloc->next == NULL && end_address < (void*)block +
+					block->size_allocated) ||
 				(end_address < (void*)alloc->next))
 		{
 			//ft_putendl("bigger in same address: ");
@@ -166,18 +167,18 @@ void	*realloc(void *ptr, size_t size)
 			//ft_putstr(ft_address_to_hexa(alloc->next));
 			//ft_putendl("");
 			//ft_putstr("block: ");
-			//ft_putstr(ft_address_to_hexa(alloc->block));
+			//ft_putstr(ft_address_to_hexa(block));
 			//ft_putstr(" with size: ");
-			//ft_putnbr(alloc->block->size_allocated);
+			//ft_putnbr(block->size_allocated);
 			//ft_putendl("");
 			if (alloc->next == NULL && end_address < (void*)alloc->next)
-				//ft_putendl("YOO WTF");
+				ft_putendl("YOO WTF");//TODO ABRUTI DES BOIS
 			//ft_putstr("old size used: ");
-			//ft_putnbr(alloc->block->size_used);
+			//ft_putnbr(block->size_used);
 			//ft_putendl("");
-			alloc->block->size_used = alloc->block->size_used + size - alloc->size_queried;
+			block->size_used = block->size_used + size - alloc->size_queried;
 			//ft_putstr("new size: ");
-			//ft_putnbr(alloc->block->size_used);
+			//ft_putnbr(block->size_used);
 			//ft_putendl("");
 			alloc->size_queried = size;
 		}

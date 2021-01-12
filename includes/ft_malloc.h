@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/09 21:32:54 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/12 05:41:55 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/12 07:12:54 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,6 @@
 
 #include <stdlib.h>
 #include "libft.h"
-
-#define TYNY 1
-#define SMALL 4
-#define LARGE 10
 
 struct s_block;
 
@@ -40,7 +36,6 @@ typedef struct		s_mallocs
 typedef struct		s_allocated
 {
 	size_t					size_queried;
-	struct s_block			*block;
 	struct s_allocated		*next;
 }					t_allocated;
 

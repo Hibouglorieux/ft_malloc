@@ -26,6 +26,7 @@ $(NAME): $(OBJ)
 	@make -C libft
 	$(CC) -shared -o $(FULL_LIBRARY) $(OBJ) $(LIBS)
 	ln -f -s $(FULL_LIBRARY) $(SHORT_LIBRARY)
+	cp $(SHORT_LIBRARY) ../doom-nukem
 
 test: $(OBJ) obj/main.o
 	@make -C libft
