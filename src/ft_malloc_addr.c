@@ -6,24 +6,11 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:30:02 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/11 09:45:35 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/12 06:12:12 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
-
-t_block	*get_first_block(size_t size)
-{
-	size_t page_size;
-
-	page_size = getpagesize();
-	if (size == page_size * 4)
-		return (get_g_mallocs()->tiny);
-	if (size == page_size * 16)
-		return (get_g_mallocs()->small);
-	else
-		return (get_g_mallocs()->large);
-}
 
 t_allocated	*get_first_allocated(t_block* block)
 {

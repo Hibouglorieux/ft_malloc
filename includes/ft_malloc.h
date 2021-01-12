@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/09 21:32:54 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/11 10:11:33 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/12 05:41:55 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,6 @@ void	*realloc(void *ptr, size_t size);
 /*
 ** ft_malloc_addr.c
 */
-t_block	*get_first_block(size_t size);
 t_allocated	*get_first_allocated(t_block* block);
 t_allocated	*user_to_allocated(void *ptr);
 void	*allocated_to_user(t_allocated *allocated);
@@ -86,6 +85,7 @@ t_allocated		*get_last_allocated(t_block *block);
 /*
 ** ft_malloc_block.c
 */
+t_block	*get_first_block(size_t size);
 size_t	return_block_size(size_t size);
 void	add_block(t_block *block);
 t_block	*create_new_block(size_t block_size);
@@ -102,12 +102,12 @@ t_allocated	*find_space_in_blocks(size_t size_queried);
 /*
 ** ft_malloc.c
 */
-t_allocated		*create_new_alloc(t_allocated *new_alloc, size_t size_queried, t_allocated *previous, t_allocated *next);
+size_t			align_size_for_address(size_t size);
+void			*malloc(size_t size);
 
 
 
 
-void	*malloc(size_t size);
 void	*calloc(size_t nmemb, size_t size);
 t_allocated	*get_first_allocated(t_block *block);
 void		*allocated_to_user(t_allocated* allocated);

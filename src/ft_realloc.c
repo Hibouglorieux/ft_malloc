@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:26:49 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/11 10:37:24 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/12 05:08:24 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,7 @@ void	*unprotected_malloc(size_t size)
 
 	return ((allocated_to_user(allocated)));
 }
+
 void	*change_ptr(t_allocated *alloc, size_t size)
 {
 	void		*user_ptr;
@@ -120,7 +121,7 @@ void	*realloc(void *ptr, size_t size)
 		return NULL;
 	}
 	*/
-	size = size - size % 8 + 8;
+	size = align_size_for_address(size);
 	if (!does_pointer_exists(ptr))
 		return (malloc(size));
 	//ft_putstr("I must realloc: ");

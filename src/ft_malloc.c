@@ -6,12 +6,24 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/09 21:32:40 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/11 10:49:34 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/12 06:18:09 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 #include <stdio.h>
+
+#define ALIGNMENT 16
+
+size_t	align_size_for_address(size_t size)
+{
+	size_t	tmp;
+
+	tmp = size % ALIGNMENT;
+	if (tmp)
+		size = size - tmp + ALIGNMENT;
+	return (size);
+}
 
 void	*malloc(size_t size)
 {
@@ -26,9 +38,18 @@ void	*malloc(size_t size)
 		ft_putendl("mutex didnt work");
 		return (return_and_release(NULL));
 	}
-	size = size - size % 16 + 16;
+	size = align_size_for_address(size);
 	block = NULL;
+
+
 	block_size = return_block_size(size);
+
+	ft_putstr("with size: ");
+	ft_putnbr(size);
+	ft_putstr(" i return: ");
+	ft_putnbr(block_size);
+	ft_putendl("");
+
 	//ft_putstr("i must malloc: ");
 	//ft_putnbr(size);
 	//ft_putendl("");

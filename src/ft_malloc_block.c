@@ -6,47 +6,58 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:46:10 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/11 09:48:08 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/12 06:26:40 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 #include <sys/mman.h>
 
+#define MAX_TINY 64
+#define MAX_SMALL 1024
+
 size_t		return_block_size(size_t size)
 {
-	size_t page_size;
+	size_t	page_size;
+	size_t	x;
 
 	page_size = getpagesize();
-	if (size < page_size)
-		return (page_size * 4);
-	if (size < page_size * 10)
-		return (page_size * 16);
+	if (size <= MAX_SMALL)
+	{
+		x = ((size <= MAX_TINY ? MAX_TINY : MAX_SMALL) + sizeof(t_allocated)) * 100 + sizeof(t_block);
+		x = x / page_size + ((size % page_size) ? 1  : 0);
+	}
 	else
-		return (size + sizeof(t_block) + sizeof(t_allocated) -
-				size % page_size + page_size);
+	{
+		x = size + sizeof(t_block) + sizeof(t_allocated);
+		x = x / page_size + ((size % page_size) ? 1 : 0);
+	}
+	return (page_size * x);
+}
+
+t_block	*get_first_block(size_t size)
+{
+	if (size == return_block_size(MAX_TINY))
+		return (get_g_mallocs()->tiny);
+	if (size == return_block_size(MAX_SMALL))
+		return (get_g_mallocs()->small);
+	else
+		return (get_g_mallocs()->large);
 }
 
 void		add_block(t_block *block)
 {
-	size_t		page_size;
 	t_block		**list_target;
 	t_block		*target;
-	size_t		size;
 
-	size = block->size_allocated;
-
-	page_size = getpagesize();
-	if (size == page_size * 4)
+	if (block->size_allocated == return_block_size(MAX_TINY))
 		list_target = &get_g_mallocs()->tiny;
-	else if (size == page_size * 16)
+	else if (block->size_allocated == return_block_size(MAX_SMALL))
 		list_target = &get_g_mallocs()->small;
 	else
 		list_target = &get_g_mallocs()->large;
 	if (*list_target == NULL)
-	{
 		*list_target = block;
-	}
 	else
 	{
 		target = *list_target;
