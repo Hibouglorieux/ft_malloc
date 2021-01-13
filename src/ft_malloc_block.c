@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:46:10 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/12 07:50:45 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/13 09:27:24 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,31 +24,19 @@ size_t		return_block_size(size_t size)
 	page_size = getpagesize();
 	if (size <= MAX_SMALL)
 	{
-		x = ((size <= MAX_TINY ? MAX_TINY : MAX_SMALL) + sizeof(t_allocated)) * 100 + sizeof(t_block);
+		x = ((size <= MAX_TINY ? MAX_TINY : MAX_SMALL) +
+				sizeof(t_allocated)) * 100 + sizeof(t_block);
 		x = x / page_size + ((x % page_size) ? 1 : 0);
 	}
 	else
 	{
 		x = size + sizeof(t_block) + sizeof(t_allocated);
-		//ft_putstr("return block, x equal: ");
-		//ft_putnbr(x);
-		//ft_putstr(" && page_size equal: ");
-		//ft_putnbr(page_size);
-		//ft_putstr(" && x / page: ");
-		//ft_putnbr(x / page_size);
-		//ft_putstr(" && size \% page: ");
-		//ft_putnbr((size % page_size));
-		//ft_putstr(" && size \% page ternary: ");
-		//ft_putnbr(((size % page_size) ? 1 : 0));
 		x = x / page_size + ((x % page_size) ? 1 : 0);
-		//ft_putstr(" && final x: ");
-		//ft_putnbr(x);
-		//ft_putendl("");
 	}
 	return (page_size * x);
 }
 
-t_block	*get_first_block(size_t size)
+t_block		*get_first_block(size_t size)
 {
 	if (size == return_block_size(MAX_TINY))
 		return (get_g_mallocs()->tiny);
@@ -86,12 +74,12 @@ t_block		*create_new_block(size_t block_size)
 
 	if ((block = mmap(NULL, block_size, PROT_READ | PROT_WRITE,
 					MAP_PRIVATE | MAP_ANONYMOUS, 0, 0)) == MAP_FAILED)
-		return NULL;
+		return (NULL);
 	block->size_allocated = block_size;
 	block->size_used = sizeof(t_block);
 	block->next = NULL;
 	add_block(block);
-	return block;
+	return (block);
 }
 
 t_block		*find_block_containing_alloc(t_allocated *alloc)
@@ -103,7 +91,7 @@ t_block		*find_block_containing_alloc(t_allocated *alloc)
 	{
 		if ((void*)alloc > (void*)block &&
 				(void*)alloc < (void*)block + block->size_allocated)
-			return block;
+			return (block);
 		block = block->next;
 	}
 	return (NULL);

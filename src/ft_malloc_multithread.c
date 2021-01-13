@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 08:51:42 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/11 10:43:50 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/13 09:28:17 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,10 @@
 
 static pthread_mutex_t g_mutex;
 
-int	init_mutex()
+int		init_mutex(void)
 {
 	static bool initialized = false;
-	int ret;
+	int			ret;
 
 	if (initialized)
 		return (0);
@@ -28,7 +28,7 @@ int	init_mutex()
 	return (ret);
 }
 
-int	secure_malloc()
+int		secure_malloc(void)
 {
 	int	ret;
 
@@ -38,7 +38,7 @@ int	secure_malloc()
 	return (ret);
 }
 
-int	release_secure_malloc()
+int		release_secure_malloc(void)
 {
 	int	ret;
 
@@ -53,4 +53,3 @@ void	*return_and_release(void *ptr)
 	release_secure_malloc();
 	return (ptr);
 }
-

@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 19:11:28 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/10 19:21:53 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/13 09:51:02 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,15 +21,48 @@ void	print_block(t_block *block, char *name)
 
 void	print_alloc(t_allocated *alloc)
 {
-	ft_putstr(ft_address_to_hexa((void*)allocated_to_user(alloc)));
-	ft_putstr(" - ");
-	ft_putstr(ft_address_to_hexa(allocated_to_user((void*)alloc + alloc->size_queried)));
-	ft_putstr(" : ");
-	ft_putnbr(alloc->size_queried);
-	ft_putendl(alloc->size_queried == 1 ? " octet" : " octets");
+	if (alloc->size_queried != 0)
+	{
+		ft_putstr(ft_address_to_hexa((void*)allocated_to_user(alloc)));
+		ft_putstr(" - ");
+		ft_putstr(ft_address_to_hexa(allocated_to_user((void*)alloc +
+						alloc->size_queried)));
+		ft_putstr(" : ");
+		ft_putnbr(alloc->size_queried);
+		ft_putendl(alloc->size_queried == 1 ? " octet" : " octets");
+	}
 }
 
-void	show_alloc_mem()
+t_block	*initialize_block_and_name(char *dest, int i)
+{
+	t_block	*block;
+
+	if (i == 0)
+	{
+		ft_strcpy(dest, "TINY: ");
+		block = get_g_mallocs()->tiny;
+	}
+	else if (i == 1)
+	{
+		ft_strcpy(dest, "SMALL: ");
+		block = get_g_mallocs()->small;
+	}
+	else
+	{
+		ft_strcpy(dest, "LARGE: ");
+		block = get_g_mallocs()->large;
+	}
+	return (block);
+}
+
+void	print_total(size_t count)
+{
+	ft_putstr("Total : ");
+	ft_putnbr(count);
+	ft_putendl(count == 1 ? " octet" : " octets");
+}
+
+void	show_alloc_mem(void)
 {
 	t_allocated *alloc;
 	t_block		*block;
@@ -41,9 +74,7 @@ void	show_alloc_mem()
 	i = -1;
 	while (++i < 3)
 	{
-		block = i == 0 ? get_g_mallocs()->tiny : i == 1 ? get_g_mallocs()->small :
-			get_g_mallocs()->large;
-		ft_strcpy(name, i == 0 ? "TINY: " : i == 1 ? "SMALL: " : "LARGE: " );
+		block = initialize_block_and_name(name, i);
 		while (block != NULL)
 		{
 			print_block(block, name);
@@ -57,7 +88,5 @@ void	show_alloc_mem()
 			block = block->next;
 		}
 	}
-	ft_putstr("Total : ");
-	ft_putnbr(count);
-	ft_putendl(count == 1 ? " octet" : " octets");
+	print_total(count);
 }
