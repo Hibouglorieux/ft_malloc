@@ -24,7 +24,7 @@ all: $(NAME)
 
 $(NAME): $(OBJ)
 	@make -C libft
-	$(CC) -shared -o $(FULL_LIBRARY) $(OBJ) $(LIBS)
+	$(CC) -shared -Wl,--version-script=libft_malloc_script.exp -o $(FULL_LIBRARY) $(OBJ) $(LIBS)
 	ln -f -s $(FULL_LIBRARY) $(SHORT_LIBRARY)
 	cp $(SHORT_LIBRARY) ../doom-nukem
 
