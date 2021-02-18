@@ -6,14 +6,14 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:49:40 by nathan            #+#    #+#             */
-/*   Updated: 2021/02/13 18:32:52 by nathan           ###   ########.fr       */
+/*   Updated: 2021/02/19 00:11:04 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-t_allocated		*create_new_alloc(t_allocated *new_alloc, size_t size_queried,
-		t_allocated *previous, t_allocated *next)
+t_allocated			*create_new_alloc(t_allocated *new_alloc, size_t
+		size_queried, t_allocated *previous, t_allocated *next)
 {
 	t_block *block;
 
@@ -29,12 +29,11 @@ t_allocated		*create_new_alloc(t_allocated *new_alloc, size_t size_queried,
 	return (new_alloc);
 }
 
-t_allocated		*find_space_inside_block(t_block *block, size_t size_queried)
+static t_allocated	*find_space_inside_block(t_block *block,
+		size_t size_queried, t_allocated *allocated)
 {
-	t_allocated		*allocated;
 	size_t			updated_size;
 
-	allocated = get_first_allocated(block);
 	updated_size = size_queried + sizeof(t_allocated);
 	while (allocated)
 	{
@@ -43,14 +42,17 @@ t_allocated		*find_space_inside_block(t_block *block, size_t size_queried)
 			return (create_new_alloc(allocated, size_queried,
 						NULL, allocated->next));
 			if (allocated->next == NULL && ((void*)allocated +
-					allocated->size_queried + sizeof(t_allocated) +
-					updated_size < (void*)block + block->size_allocated))
+					align_size_for_address(allocated->size_queried) +
+					sizeof(t_allocated) + updated_size <
+					(void*)block + block->size_allocated))
 			return (create_new_alloc((void*)allocated + sizeof(t_allocated) +
-						allocated->size_queried, size_queried, allocated,
-						NULL));
-		else if ((void*)allocated + allocated->size_queried + updated_size +
-				sizeof(t_allocated) < (void*)allocated->next)
-			return (create_new_alloc((void*)allocated + allocated->size_queried
+						align_size_for_address(allocated->size_queried),
+						size_queried, allocated, NULL));
+		else if ((void*)allocated + allocated->size_queried +
+				align_size_for_address(updated_size) + sizeof(t_allocated) <
+				(void*)allocated->next)
+			return (create_new_alloc((void*)allocated + 
+						align_size_for_address(allocated->size_queried)
 						+ sizeof(t_allocated), size_queried,
 						allocated, allocated->next));
 			allocated = allocated->next;
@@ -58,7 +60,7 @@ t_allocated		*find_space_inside_block(t_block *block, size_t size_queried)
 	return (allocated);
 }
 
-t_allocated		*find_space_in_blocks(size_t size_queried)
+t_allocated			*find_space_in_blocks(size_t size_queried)
 {
 	t_allocated		*allocated;
 	t_block			*block;
@@ -74,7 +76,8 @@ t_allocated		*find_space_in_blocks(size_t size_queried)
 			block = block->next;
 			continue ;
 		}
-		allocated = find_space_inside_block(block, size_queried);
+		allocated = find_space_inside_block(block, size_queried,
+				get_first_allocated(block));
 		if (allocated != NULL)
 			break ;
 		block = block->next;

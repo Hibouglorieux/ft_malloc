@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:26:49 by nathan            #+#    #+#             */
-/*   Updated: 2021/02/18 23:10:25 by user42           ###   ########.fr       */
+/*   Updated: 2021/02/19 00:11:43 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ static void	*unprotected_malloc(size_t size)
 
 	if (size == 0)
 		return (NULL);
-	size = align_size_for_address(size);
 	block_size = return_block_size(size);
 	if (get_first_block(block_size) == NULL)
 	{
@@ -93,7 +92,6 @@ void		*realloc(void *ptr, size_t size)
 	t_block		*block;
 
 	secure_malloc();
-	size = align_size_for_address(size);
 	if (!does_pointer_exists(ptr))
 		return (return_and_release(unprotected_malloc(size)));
 	alloc = user_to_allocated(ptr);

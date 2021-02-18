@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/09 21:32:54 by nathan            #+#    #+#             */
-/*   Updated: 2021/02/18 23:11:57 by user42           ###   ########.fr       */
+/*   Updated: 2021/02/19 00:20:43 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ typedef struct			s_block
 	size_t				size_allocated;
 	size_t				size_used;
 	struct s_block		*next;
+	const int			unused;
 }						t_block;
 
 typedef struct			s_mallocs
@@ -74,6 +75,7 @@ void					*realloc(void *ptr, size_t size);
 /*
 ** ft_malloc_addr.c
 */
+size_t					align_size_for_address(size_t size);
 t_allocated				*get_first_allocated(t_block *block);
 t_allocated				*user_to_allocated(void *ptr);
 void					*allocated_to_user(t_allocated *allocated);
@@ -93,14 +95,11 @@ t_block					*find_block_containing_alloc(t_allocated *alloc);
 
 t_allocated				*create_new_alloc(t_allocated *new_alloc,
 		size_t size_queried, t_allocated *previous, t_allocated *next);
-t_allocated				*find_space_inside_block(t_block *block,
-		size_t size_queried);
 t_allocated				*find_space_in_blocks(size_t size_queried);
 
 /*
 ** ft_malloc.c
 */
-size_t					align_size_for_address(size_t size);
 void					*malloc(size_t size);
 void					*calloc(size_t nmemb, size_t size);
 

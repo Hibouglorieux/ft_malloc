@@ -6,24 +6,12 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/09 21:32:40 by nathan            #+#    #+#             */
-/*   Updated: 2021/02/18 18:23:58 by nathan           ###   ########.fr       */
+/*   Updated: 2021/02/19 00:18:29 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 #include "libft.h"
-
-#define ALIGNMENT 16
-
-size_t	align_size_for_address(size_t size)
-{
-	size_t	tmp;
-
-	tmp = size % ALIGNMENT;
-	if (tmp)
-		size = size - tmp + ALIGNMENT;
-	return (size);
-}
 
 void	*malloc(size_t size)
 {
@@ -35,7 +23,6 @@ void	*malloc(size_t size)
 		return (NULL);
 	if (secure_malloc())
 		return (return_and_release(NULL));
-	size = align_size_for_address(size);
 	block_size = return_block_size(size);
 	if (get_first_block(block_size) == NULL)
 	{
