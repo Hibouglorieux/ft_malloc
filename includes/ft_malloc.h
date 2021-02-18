@@ -6,14 +6,14 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/09 21:32:54 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/13 10:44:57 by nathan           ###   ########.fr       */
+/*   Updated: 2021/02/18 18:21:14 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_MALLOC_H
 # define FT_MALLOC_H
 # include <stdlib.h>
-# include "libft.h"
+# include <stdbool.h>
 
 typedef struct			s_block
 {

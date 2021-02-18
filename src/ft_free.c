@@ -6,14 +6,14 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:27:46 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/13 07:10:31 by nathan           ###   ########.fr       */
+/*   Updated: 2021/02/18 18:24:36 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 #include <sys/mman.h>
 
-void	remove_block(t_block *block)
+void		remove_block(t_block *block)
 {
 	t_block		*target;
 	t_mallocs	*mallocs;
@@ -35,7 +35,7 @@ void	remove_block(t_block *block)
 	munmap(block, block->size_allocated);
 }
 
-bool	does_pointer_exists_2(t_block *block, t_allocated *alloc_received)
+static bool	does_pointer_exists_2(t_block *block, t_allocated *alloc_received)
 {
 	t_allocated	*alloc;
 
@@ -53,7 +53,7 @@ bool	does_pointer_exists_2(t_block *block, t_allocated *alloc_received)
 	return (false);
 }
 
-bool	does_pointer_exists(void *ptr)
+bool		does_pointer_exists(void *ptr)
 {
 	t_allocated	*alloc_received;
 	t_block		*block;
@@ -61,8 +61,7 @@ bool	does_pointer_exists(void *ptr)
 
 	if (!ptr)
 		return (false);
-	if (ptr == NULL || ptr <=
-			NULL + sizeof(t_allocated))
+	if (ptr == NULL || ptr <= (void*)sizeof(t_allocated))
 		return (false);
 	alloc_received = user_to_allocated(ptr);
 	i = -1;
@@ -80,7 +79,7 @@ bool	does_pointer_exists(void *ptr)
 	return (false);
 }
 
-void	remove_alloc(t_allocated *removed, t_block *block)
+void		remove_alloc(t_allocated *removed, t_block *block)
 {
 	t_allocated	*tmp;
 
@@ -99,7 +98,7 @@ void	remove_alloc(t_allocated *removed, t_block *block)
 	}
 }
 
-void	free(void *ptr)
+void		free(void *ptr)
 {
 	t_block		*block;
 	t_allocated	*allocated;

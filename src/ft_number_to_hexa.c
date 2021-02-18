@@ -6,13 +6,14 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 02:02:15 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/13 09:57:30 by nathan           ###   ########.fr       */
+/*   Updated: 2021/02/18 18:24:01 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "ft_malloc.h"
 #include "libft.h"
 
-void		reverse_string(char *str)
+static void	reverse_string(char *str)
 {
 	int				i;
 	int				j;
@@ -32,7 +33,7 @@ void		reverse_string(char *str)
 	}
 }
 
-char		*null_into_str(char *str)
+static char	*null_into_str(char *str)
 {
 	str[0] = '0';
 	str[1] = 'x';
@@ -42,7 +43,7 @@ char		*null_into_str(char *str)
 	return (str);
 }
 
-void		nb_to_string_as_hex(unsigned long nb, char *dest, int len)
+static void	nb_to_string_as_hex(unsigned long nb, char *dest, int len)
 {
 	int				i;
 	unsigned char	tmp;

@@ -6,12 +6,12 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/09 21:32:40 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/13 07:17:45 by nathan           ###   ########.fr       */
+/*   Updated: 2021/02/18 18:23:58 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
-#include <stdio.h>
+#include "libft.h"
 
 #define ALIGNMENT 16
 

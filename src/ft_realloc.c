@@ -6,13 +6,14 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:26:49 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/13 10:35:55 by nathan           ###   ########.fr       */
+/*   Updated: 2021/02/18 18:22:44 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
+#include "libft.h"
 
-void	unprotected_free(void *ptr)
+static void	unprotected_free(void *ptr)
 {
 	t_block		*block;
 	t_allocated	*allocated;
@@ -32,7 +33,7 @@ void	unprotected_free(void *ptr)
 	}
 }
 
-void	*unprotected_malloc(size_t size)
+static void	*unprotected_malloc(size_t size)
 {
 	size_t			block_size;
 	t_block			*block;
@@ -58,7 +59,7 @@ void	*unprotected_malloc(size_t size)
 						get_first_allocated(block), size, NULL, NULL)));
 }
 
-void	*change_ptr(t_allocated *alloc, size_t size)
+static void	*change_ptr(t_allocated *alloc, size_t size)
 {
 	void		*user_ptr;
 
@@ -70,7 +71,7 @@ void	*change_ptr(t_allocated *alloc, size_t size)
 	return (user_ptr);
 }
 
-void	*realloc_part_2(void *ptr, t_block *block, size_t size,
+static void	*realloc_part_2(void *ptr, t_block *block, size_t size,
 		t_allocated *alloc)
 {
 	void	*end_address;
@@ -88,7 +89,7 @@ void	*realloc_part_2(void *ptr, t_block *block, size_t size,
 		return (change_ptr(alloc, size));
 }
 
-void	*realloc(void *ptr, size_t size)
+void		*realloc(void *ptr, size_t size)
 {
 	t_allocated	*alloc;
 	t_block		*block;

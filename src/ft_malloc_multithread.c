@@ -6,17 +6,16 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 08:51:42 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/13 09:28:17 by nathan           ###   ########.fr       */
+/*   Updated: 2021/02/18 18:24:57 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <pthread.h>
-#include <stdbool.h>
-#include "libft.h"
+#include "ft_malloc.h"
 
 static pthread_mutex_t g_mutex;
 
-int		init_mutex(void)
+static int	init_mutex(void)
 {
 	static bool initialized = false;
 	int			ret;
@@ -28,7 +27,7 @@ int		init_mutex(void)
 	return (ret);
 }
 
-int		secure_malloc(void)
+int			secure_malloc(void)
 {
 	int	ret;
 
@@ -38,7 +37,7 @@ int		secure_malloc(void)
 	return (ret);
 }
 
-int		release_secure_malloc(void)
+int			release_secure_malloc(void)
 {
 	int	ret;
 
@@ -48,7 +47,7 @@ int		release_secure_malloc(void)
 	return (ret);
 }
 
-void	*return_and_release(void *ptr)
+void		*return_and_release(void *ptr)
 {
 	release_secure_malloc();
 	return (ptr);

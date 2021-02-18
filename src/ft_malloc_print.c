@@ -6,20 +6,14 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 19:11:28 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/13 09:51:02 by nathan           ###   ########.fr       */
+/*   Updated: 2021/02/18 18:21:36 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 #include "libft.h"
 
-void	print_block(t_block *block, char *name)
-{
-	ft_putstr(name);
-	ft_putendl(ft_address_to_hexa((void*)block));
-}
-
-void	print_alloc(t_allocated *alloc)
+static void		print_alloc(t_allocated *alloc)
 {
 	if (alloc->size_queried != 0)
 	{
@@ -33,7 +27,23 @@ void	print_alloc(t_allocated *alloc)
 	}
 }
 
-t_block	*initialize_block_and_name(char *dest, int i)
+static void		print_block_and_allocs(t_block *block, char *name,
+		size_t *count)
+{
+	t_allocated	*alloc;
+
+	ft_putstr(name);
+	ft_putendl(ft_address_to_hexa((void*)block));
+	alloc = get_first_allocated(block);
+	while (alloc)
+	{
+		print_alloc(alloc);
+		*count += alloc->size_queried;
+		alloc = alloc->next;
+	}
+}
+
+static t_block	*initialize_block_and_name(char *dest, int i)
 {
 	t_block	*block;
 
@@ -55,21 +65,21 @@ t_block	*initialize_block_and_name(char *dest, int i)
 	return (block);
 }
 
-void	print_total(size_t count)
+static void		print_total(size_t count)
 {
 	ft_putstr("Total : ");
 	ft_putnbr(count);
 	ft_putendl(count == 1 ? " octet" : " octets");
 }
 
-void	show_alloc_mem(void)
+void			show_alloc_mem(void)
 {
-	t_allocated *alloc;
 	t_block		*block;
 	size_t		count;
 	char		name[10];
 	int			i;
 
+	secure_malloc();
 	count = 0;
 	i = -1;
 	while (++i < 3)
@@ -77,16 +87,10 @@ void	show_alloc_mem(void)
 		block = initialize_block_and_name(name, i);
 		while (block != NULL)
 		{
-			print_block(block, name);
-			if (block && (alloc = get_first_allocated(block)))
-				while (alloc)
-				{
-					print_alloc(alloc);
-					count += alloc->size_queried;
-					alloc = alloc->next;
-				}
+			print_block_and_allocs(block, name, &count);
 			block = block->next;
 		}
 	}
 	print_total(count);
+	release_secure_malloc();
 }

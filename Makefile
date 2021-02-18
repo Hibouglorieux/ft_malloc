@@ -18,6 +18,7 @@ FULL_LIBRARY = $(addsuffix .so, $(addsuffix $(HOSTTYPE), $(NAME)))
 
 SHORT_LIBRARY = $(addsuffix .so, $(NAME))
 
+COMPILE_FLAGS = -Wall -Wextra #-Werror isnt present because of the norminette bug
 
 
 all: $(NAME)

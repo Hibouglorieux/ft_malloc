@@ -6,12 +6,13 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:46:10 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/13 09:27:24 by nathan           ###   ########.fr       */
+/*   Updated: 2021/02/18 18:23:30 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 #include <sys/mman.h>
+#include "unistd.h"
 
 #define MAX_TINY 64
 #define MAX_SMALL 1024
