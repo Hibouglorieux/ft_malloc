@@ -6,33 +6,30 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:27:46 by nathan            #+#    #+#             */
-/*   Updated: 2021/02/18 18:24:36 by nathan           ###   ########.fr       */
+/*   Updated: 2021/02/18 23:12:51 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
-#include <sys/mman.h>
 
-void		remove_block(t_block *block)
+void		defragment_blocks(t_block *block)
 {
-	t_block		*target;
-	t_mallocs	*mallocs;
+	t_block			*empty;
+	unsigned long	available_size_in_blocks;
 
-	mallocs = get_g_mallocs();
-	if (mallocs->tiny == block)
-		mallocs->tiny = block->next;
-	else if (mallocs->small == block)
-		mallocs->small = block->next;
-	else if (mallocs->large == block)
-		mallocs->large = block->next;
-	else
+	empty = NULL;
+	available_size_in_blocks = 0;
+	while (block != NULL)
 	{
-		target = get_first_block(block->size_allocated);
-		while (target->next != block)
-			target = target->next;
-		target->next = block->next;
+		if (block->size_used <= sizeof(t_block))
+			empty = block;
+		else
+			available_size_in_blocks = available_size_in_blocks +
+				block->size_allocated - block->size_used;
+		block = block->next;
 	}
-	munmap(block, block->size_allocated);
+	if (empty && available_size_in_blocks > empty->size_allocated / 8)
+		remove_block(empty);
 }
 
 static bool	does_pointer_exists_2(t_block *block, t_allocated *alloc_received)
@@ -115,11 +112,9 @@ void		free(void *ptr)
 	block->size_used = block->size_used - allocated->size_queried
 		- sizeof(t_allocated);
 	remove_alloc(allocated, block);
-	if (allocated == get_first_allocated(block))
-		create_new_alloc(get_first_allocated(block), 0, NULL, allocated->next);
-	if (block->size_used <= sizeof(t_block))
-	{
+	if (get_first_block(block->size_allocated) == get_g_mallocs()->large)
 		remove_block(block);
-	}
+	else
+		defragment_blocks(get_first_block(block->size_allocated));
 	release_secure_malloc();
 }

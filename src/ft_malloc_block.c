@@ -6,16 +6,17 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:46:10 by nathan            #+#    #+#             */
-/*   Updated: 2021/02/18 18:23:30 by nathan           ###   ########.fr       */
+/*   Updated: 2021/02/18 23:20:50 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 #include <sys/mman.h>
+#include <sys/resource.h>
 #include "unistd.h"
 
-#define MAX_TINY 64
-#define MAX_SMALL 1024
+#define MAX_TINY 1024
+#define MAX_SMALL 32768
 
 size_t		return_block_size(size_t size)
 {
@@ -71,10 +72,14 @@ void		add_block(t_block *block)
 
 t_block		*create_new_block(size_t block_size)
 {
-	t_block		*block;
+	t_block			*block;
+	struct rlimit	limits;
 
+	getrlimit(RLIMIT_AS, &limits);
+	if (limits.rlim_cur < block_size)
+		return (NULL);
 	if ((block = mmap(NULL, block_size, PROT_READ | PROT_WRITE,
-					MAP_PRIVATE | MAP_ANONYMOUS, 0, 0)) == MAP_FAILED)
+					MAP_PRIVATE | MAP_ANONYMOUS, -1, 0)) == MAP_FAILED)
 		return (NULL);
 	block->size_allocated = block_size;
 	block->size_used = sizeof(t_block);

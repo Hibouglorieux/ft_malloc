@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/09 21:32:54 by nathan            #+#    #+#             */
-/*   Updated: 2021/02/18 18:21:14 by nathan           ###   ########.fr       */
+/*   Updated: 2021/02/18 23:11:57 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,10 +53,16 @@ int						release_secure_malloc(void);
 void					*return_and_release(void *ptr);
 
 /*
+** ft_free_2.c
+*/
+void					remove_block(t_block *block);
+
+
+/*
 ** ft_free.c
 */
 void					remove_alloc(t_allocated *removed, t_block *block);
-void					remove_block(t_block *block);
+void					defragment_blocks(t_block *block);
 bool					does_pointer_exists(void *ptr);
 void					free(void *ptr);
 

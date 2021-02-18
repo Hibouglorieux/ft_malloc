@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:26:49 by nathan            #+#    #+#             */
-/*   Updated: 2021/02/18 18:22:44 by nathan           ###   ########.fr       */
+/*   Updated: 2021/02/18 23:10:25 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,12 +25,10 @@ static void	unprotected_free(void *ptr)
 	block->size_used = block->size_used - allocated->size_queried
 		- sizeof(t_allocated);
 	remove_alloc(allocated, block);
-	if (allocated == get_first_allocated(block))
-		create_new_alloc(get_first_allocated(block), 0, NULL, allocated->next);
-	if (block->size_used <= sizeof(t_block))
-	{
+	if (get_first_block(block->size_allocated) == get_g_mallocs()->large)
 		remove_block(block);
-	}
+	else
+		defragment_blocks(get_first_block(block->size_allocated));
 }
 
 static void	*unprotected_malloc(size_t size)
