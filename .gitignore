@@ -2,6 +2,5 @@ obj
 obj/*.o
 *.o
 malloc
-libft
 *.so
 *.swp

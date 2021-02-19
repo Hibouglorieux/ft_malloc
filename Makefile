@@ -20,6 +20,7 @@ SHORT_LIBRARY = $(addsuffix .so, $(NAME))
 
 COMPILE_FLAGS = -Wall -Wextra -fPIC #-Werror isnt present because of the norminette bug
 
+.PHONY: all clean fclean re test
 
 all: $(NAME)
 
