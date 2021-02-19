@@ -28,7 +28,7 @@ $(NAME): $(OBJ)
 	$(CC) -shared -Wl,--version-script=libft_malloc_script.exp -o $(FULL_LIBRARY) $(OBJ) $(LIBS)
 	ln -f -s $(FULL_LIBRARY) $(SHORT_LIBRARY)
 
-test: $(OBJ) obj/main.o
+test: $(OBJ) obj/test.o
 	@make -C libft
 	$(CC) $^ -o malloc $(LIBS)
 	
@@ -38,7 +38,7 @@ obj/%.o:src/%.c $(INCLUDES)
 
 clean:
 	@make clean -C libft
-	rm -rf obj/*.o
+	rm -rf obj/
 
 fclean: clean
 	@make fclean -C libft

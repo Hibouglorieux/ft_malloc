@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:27:46 by nathan            #+#    #+#             */
-/*   Updated: 2021/02/18 23:12:51 by user42           ###   ########.fr       */
+/*   Updated: 2021/02/19 00:42:42 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,8 +109,8 @@ void		free(void *ptr)
 	}
 	allocated = user_to_allocated(ptr);
 	block = find_block_containing_alloc(allocated);
-	block->size_used = block->size_used - allocated->size_queried
-		- sizeof(t_allocated);
+	block->size_used = block->size_used -
+		align_size_for_address(allocated->size_queried) - sizeof(t_allocated);
 	remove_alloc(allocated, block);
 	if (get_first_block(block->size_allocated) == get_g_mallocs()->large)
 		remove_block(block);

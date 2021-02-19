@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:30:02 by nathan            #+#    #+#             */
-/*   Updated: 2021/02/19 00:13:29 by user42           ###   ########.fr       */
+/*   Updated: 2021/02/19 00:24:21 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #define ALIGNMENT 16
 
-size_t	align_size_for_address(size_t size)
+size_t		align_size_for_address(size_t size)
 {
 	size_t	tmp;
 

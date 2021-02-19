@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 09:26:49 by nathan            #+#    #+#             */
-/*   Updated: 2021/02/19 00:11:43 by user42           ###   ########.fr       */
+/*   Updated: 2021/02/19 04:00:24 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@ static void	unprotected_free(void *ptr)
 		return ;
 	allocated = user_to_allocated(ptr);
 	block = find_block_containing_alloc(allocated);
-	block->size_used = block->size_used - allocated->size_queried
-		- sizeof(t_allocated);
+	block->size_used = block->size_used -
+		align_size_for_address(allocated->size_queried) - sizeof(t_allocated);
 	remove_alloc(allocated, block);
 	if (get_first_block(block->size_allocated) == get_g_mallocs()->large)
 		remove_block(block);
@@ -78,7 +78,8 @@ static void	*realloc_part_2(void *ptr, t_block *block, size_t size,
 				block->size_allocated) ||
 			(end_address < (void*)alloc->next))
 	{
-		block->size_used = block->size_used + size - alloc->size_queried;
+		block->size_used = block->size_used + align_size_for_address(size) -
+			align_size_for_address(alloc->size_queried);
 		alloc->size_queried = size;
 		return (ptr);
 	}
@@ -92,8 +93,10 @@ void		*realloc(void *ptr, size_t size)
 	t_block		*block;
 
 	secure_malloc();
-	if (!does_pointer_exists(ptr))
+	if (!ptr)
 		return (return_and_release(unprotected_malloc(size)));
+	if (!does_pointer_exists(ptr))
+		return (return_and_release(NULL));
 	alloc = user_to_allocated(ptr);
 	block = find_block_containing_alloc(alloc);
 	if (size == 0)
@@ -104,7 +107,8 @@ void		*realloc(void *ptr, size_t size)
 	}
 	else if (size < alloc->size_queried)
 	{
-		block->size_used = block->size_used + size - alloc->size_queried;
+		block->size_used = block->size_used + align_size_for_address(size) -
+			align_size_for_address(alloc->size_queried);
 		alloc->size_queried = size;
 	}
 	else
